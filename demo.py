@@ -6,7 +6,7 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import core.utils as utils
 import tensorflow as tf
-import yolov3_tf
+from yolov3_tf import YOLOV3
 
 import os
 from timeit import time
@@ -26,7 +26,7 @@ from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
 
-def main(yolo):
+def main(yolov3):
 
     # Definition of the parameters
     max_cosine_distance = 0.3
@@ -64,10 +64,10 @@ def main(yolo):
             break
         t1 = time.time()
 
-        # image = Image.fromarray(frame)
+        image = Image.fromarray(frame)
         # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
-        boxs = yolo.detect_image(image)  # 从这里开始检测
+        boxs = yolov3.detect_image(image)  # 从这里开始检测
         # boxs = yolov3_tf.detect_image(image)
         # print("box_num",len(boxs))
         features = encoder(frame, boxs)
@@ -125,6 +125,7 @@ def main(yolo):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+    yolov3.close_session()
     video_capture.release()
     if writeVideo_flag:
         out.release()
