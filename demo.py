@@ -4,17 +4,13 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
-import core.utils as utils
-import tensorflow as tf
 from yolov3_tf import YOLOV3
+from Tk import Gui
+from judge import JUDGE
 
-import os
 from timeit import time
 import warnings
-import sys
 import cv2
-import numpy as np
-from PIL import Image
 # from yolo import YOLO
 
 from deep_sort import preprocessing
@@ -25,8 +21,42 @@ from tools import generate_detections as gdet
 # from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
+tag = -1
+ix = [0, 0, 0, 0]
+iy = [0, 0, 0, 0]
+drawing = False
+
+# img = cv2.UMat()
+
+
+# 鼠标出现动作后调用的函数
+def draw_area(event, x, y, flags, param):
+    global ix, iy, drawing, tag
+    #当按下左键时返回起始位置坐标
+    if event == cv2.EVENT_LBUTTONDOWN:
+        drawing = True
+        tag = tag + 1
+        if tag < 4:
+            ix[tag], iy[tag] = x, y
+
+
+def draw_line(event, x, y, flags, param):
+    global ix, iy, drawing, tag
+    #当按下左键时返回起始位置坐标
+    if event == cv2.EVENT_LBUTTONDOWN:
+        drawing = True
+        tag = tag + 1
+        if tag < 2:
+            ix[tag], iy[tag] = x, y
+
 
 def main(yolov3):
+    global ix, iy, drawing, tag, img
+    # 初始化类
+    G = Gui()
+    judge = JUDGE()
+
+    G.gui()
 
     # Definition of the parameters
     max_cosine_distance = 0.3
@@ -42,25 +72,79 @@ def main(yolov3):
                                                        nn_budget)
     tracker = Tracker(metric)
 
-    writeVideo_flag = False
+    writeVideo_flag = G.ifsave
 
     # video_path = "/home/tom/桌面/行人检测算法/测试视频/test.mp4"
-    video_path = "/home/tom/桌面/行人检测算法/people/003.avi"
+    # video_path = "/home/tom/桌面/行人检测算法/people/003.avi"
+    video_path = G.pathToLoad
+
     video_capture = cv2.VideoCapture(video_path)
 
+    # ================= 储存视频 =================
     if writeVideo_flag:
         # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter('output.avi', fourcc, 15, (w, h))
+        out = cv2.VideoWriter(G.pathToSave, fourcc, 15, (w, h))
         list_file = open('detection.txt', 'w')
         frame_index = -1
+    # ==============获取鼠标事件画区域的代码=================
+    if G.ifregion == 1:  # 如果画警戒区域
+        value, img = video_capture.read()
+        # rotate the img
+        # img = np.rot90(img, -1)
 
+        cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
+        cv2.setMouseCallback(
+            "image", draw_area)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
+        while (1):
+            if drawing is True and tag < 4:
+                if tag > 0:
+                    cv2.line(img, (ix[tag - 1], iy[tag - 1]),
+                             (ix[tag], iy[tag]), (0, 0, 255), 2)
+                if tag == 3:
+                    cv2.line(img, (ix[0], iy[0]), (ix[tag], iy[tag]),
+                             (0, 0, 255), 2)
+                drawing = False
+
+            cv2.imshow('image', img)
+            k = cv2.waitKey(1)
+            if k == ord('q') or tag == 4:
+                break
+        pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]], [ix[2], iy[2]],
+                        [ix[3], iy[3]]])
+        cv2.destroyWindow("image")
+        # ==============获取鼠标事件画警戒线的代码=================
+    if G.ifline == 1:  # 如果画警戒线
+        value, img = video_capture.read()
+        # rotate the img
+        # img = np.rot90(img, -1)
+
+        cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
+        cv2.setMouseCallback(
+            "image", draw_line)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
+        while (1):
+            if drawing is True and tag < 2:
+                if tag > 0:
+                    cv2.line(img, (ix[tag - 1], iy[tag - 1]),
+                             (ix[tag], iy[tag]), (0, 0, 255), 2)
+                # if tag == 3:
+                #     cv2.line(img, (ix[0], iy[0]), (ix[tag], iy[tag]),
+                #              (0, 0, 255), 2)
+                drawing = False
+
+            cv2.imshow('image', img)
+            k = cv2.waitKey(1)
+            if k == ord('q') or tag == 2:
+                break
+        pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]]])
+        cv2.destroyWindow("image")
+    # ===============================
     fps = 0.0
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
-        if ret != True:
+        if ret is not True:
             break
         t1 = time.time()
 
@@ -96,9 +180,7 @@ def main(yolov3):
             # 白色是卡尔曼滤波预测的目标，绿的字
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
                           (int(bbox[2]), int(bbox[3])), (255, 255, 255), 2)
-            # strtemp = str(track.track_id) + " dx = " + str(
-            #     round(track.mean[4], 3)) + " dy = " + str(
-            #         round(track.mean[5], 3))
+
             strtemp = str(track.track_id) + " v = " + str(
                 round(np.sqrt(track.mean[4]**2 + track.mean[5]**2),
                       3)) + " pixels/frame"
@@ -110,9 +192,10 @@ def main(yolov3):
             # 蓝色是检测出的目标
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
                           (int(bbox[2]), int(bbox[3])), (255, 0, 0), 2)
-
+        # ==============判断是否进入区域
+        frame = judge.draw(pts, frame)
         cv2.imshow('', frame)
-
+        # ==============储存视频 =====================
         if writeVideo_flag:
             # save a frame
             out.write(frame)
@@ -124,6 +207,7 @@ def main(yolov3):
                         str(boxs[i][0]) + ' ' + str(boxs[i][1]) + ' ' +
                         str(boxs[i][2]) + ' ' + str(boxs[i][3]) + ' ')
             list_file.write('\n')
+        # ============================================
 
         fps = (fps + (1. / (time.time() - t1))) / 2
         print("fps= %f" % (fps))
@@ -132,6 +216,7 @@ def main(yolov3):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+    # ========= 结束全流程 ========
     yolov3.close_session()
     video_capture.release()
     if writeVideo_flag:

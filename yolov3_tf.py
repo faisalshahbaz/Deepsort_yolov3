@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 import core.utils as utils
 import tensorflow as tf
-from PIL import Image
 
 
 class YOLOV3(object):  # Object类是所有类都会继承的类
