@@ -230,11 +230,5 @@ def postprocess_boxes(pred_bbox, org_img_shape, input_size, score_threshold):
     score_mask = scores > score_threshold
     mask = np.logical_and(scale_mask, score_mask)
     coors, scores, classes = pred_coor[mask], scores[mask], classes[mask]
-
-    x = coors[:, 0]
-    y = coors[:, 1]
-    w = coors[:, 2] - coors[:, 0]
-    h = coors[:, 3] - coors[:, 1]
-
     return np.concatenate(
-        [x, y, w, h, scores[:, np.newaxis], classes[:, np.newaxis]], axis=-1)
+        [coors, scores[:, np.newaxis], classes[:, np.newaxis]], axis=-1)

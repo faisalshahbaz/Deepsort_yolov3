@@ -50,8 +50,27 @@ class YOLOV3(object):  # Object类是所有类都会继承的类
 
         bboxes = utils.postprocess_boxes(pred_bbox, original_image_size,
                                          self.input_size, 0.3)
-        boxes = bboxes[:, 0:4]
+        # bboxes = utils.nms(bboxes, 0.45, method='nms')
+        bboxes[:, 2] = bboxes[:, 2] - bboxes[:, 0]
+        bboxes[:, 3] = bboxes[:, 3] - bboxes[:, 1]
+
+        boxes = []
+        for bbox in bboxes:
+            if bbox[5] != 0:
+                continue
+            else:
+                boxes.append(bbox[:4])
+
+        # boxes = bboxes[:, :4]
+        # x = boxes[:, 0]
+        # y = boxes[:, 1]
+
+        boxes = np.trunc(boxes)
         return boxes
+        # return np.concatenate([
+        #     x[:, np.newaxis], y[:, np.newaxis], w[:, np.newaxis],
+        #     h[:, np.newaxis]
+        # ])
         # bboxes = utils.nms(bboxes, 0.45, method='nms')
         # image = utils.draw_bbox(original_image, bboxes)
         # image = Image.fromarray(image)
