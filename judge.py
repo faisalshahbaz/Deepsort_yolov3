@@ -8,6 +8,8 @@ class JUDGE(object):  # Object类是所有类都会继承的类
     def __init__(self, pts, height=1080, width=1920):
         self.black = np.zeros([height, width], dtype=np.uint8)
         self.pts = pts
+        self.list_id = []
+        self.list_v = []
 
     # def close(self):
     #     del self.black
@@ -62,12 +64,13 @@ class JUDGE(object):  # Object类是所有类都会继承的类
             else:
                 return False
 
-    def determine_single(self, vx, vy, ifsingle_cross, ifregion, ifreverse):
+    def determine_direction(self, vx, vy, ifsingle_cross, ifregion, ifreverse):
         # 作用：判断是否满足单向穿越条件；如果是双向穿越，则一直返回True
         # Input：
         # @ vx：velocty of x direction
         # @ vy: velocity of y direction
         # @ ifsingle_cross : yes, value = 1; no, value = 0
+        # @ Return: Bool value
         # 法向量normal vector: (k,-1)
         if (ifregion == 1) or (ifsingle_cross == 0):
             return True  # 如果是警戒区域，或者没有开单向穿越功能
@@ -82,3 +85,31 @@ class JUDGE(object):  # Object类是所有类都会继承的类
                 if np.dot(self.normal_vec, velocity) < 0:
                     return True
             return False
+
+    def filter_vel(self, ID, v):
+        # 作用：对某个对象进行均值滤波
+        # Input：
+        # @ id：the id of object
+        # @ v: velocity of object
+        # @ Return: velocity after filter
+        # first time
+        if ID not in self.list_id:
+            if len(self.list_id) > 100:  # 存储速度数据的上限是100人
+                del (self.list_id[0])
+                del (self.list_v[0])
+            self.list_id.append(ID)
+            self.list_v.append([v, 0, 0, 0, 0])
+            return v / 5
+        else:
+            i = self.list_id.index(ID)
+            v_array = self.list_v[i]
+            v_array[1:] = v_array[0:-1]
+            v_array[0] = v
+            self.list_v[i] = v_array
+
+            # 中值滤波
+            array = sorted(v_array)
+            half = len(array) // 2
+            return (array[half] + array[~half]) / 2
+            # 均值滤波
+            # return sum(v_array) / len(v_array)

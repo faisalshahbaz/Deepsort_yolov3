@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Run a tensorflow YOLO_v3 style detection model.
 """

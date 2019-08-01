@@ -177,6 +177,7 @@ def main(yolov3):
             vx = track.mean[4]
             vy = track.mean[5]
             v = np.sqrt(vx**2 + vy**2)
+            v = judge.filter_vel(track.track_id, v)  # 对速度进行平滑处理
             bbox = track.to_tlbr()
             color = (255, 255, 255)  # default color
 
@@ -193,8 +194,8 @@ def main(yolov3):
                 (bbox[0] + bbox[2]) / 2, bbox[3]) or judge.determine(
                     (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2):
 
-                if judge.determine_single(vx, vy, G.ifsingle_cross, G.ifregion,
-                                          G.ifreverse):
+                if judge.determine_direction(vx, vy, G.ifsingle_cross,
+                                             G.ifregion, G.ifreverse):
                     if track.track_id not in person_list:
                         person_list.append(track.track_id)
                         alarm_tag = True  # alarm_tag 仅用于指示保存
