@@ -26,8 +26,6 @@ ix = [0, 0, 0, 0]
 iy = [0, 0, 0, 0]
 drawing = False
 
-# img = cv2.UMat()
-
 
 # 鼠标出现动作后调用的函数
 def draw_area(event, x, y, flags, param):
@@ -52,10 +50,11 @@ def draw_line(event, x, y, flags, param):
 
 def main(yolov3):
     global ix, iy, drawing, tag, img
-    # 初始化类
-    G = Gui()
-    judge = JUDGE()
+    order = 0  # 统计是第几帧
+    alarm_tag = False  # 这一帧是否报警
+    person_list = []  # 储存person_ID的list
 
+    G = Gui()
     G.gui()
 
     # Definition of the parameters
@@ -72,8 +71,6 @@ def main(yolov3):
                                                        nn_budget)
     tracker = Tracker(metric)
 
-    writeVideo_flag = G.ifsave
-
     # video_path = "/home/tom/桌面/行人检测算法/测试视频/test.mp4"
     # video_path = "/home/tom/桌面/行人检测算法/people/003.avi"
     video_path = G.pathToLoad
@@ -81,7 +78,7 @@ def main(yolov3):
     video_capture = cv2.VideoCapture(video_path)
 
     # ================= 储存视频 =================
-    if writeVideo_flag:
+    if G.ifsave == 1:
         # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
@@ -129,9 +126,6 @@ def main(yolov3):
                 if tag > 0:
                     cv2.line(img, (ix[tag - 1], iy[tag - 1]),
                              (ix[tag], iy[tag]), (0, 0, 255), 2)
-                # if tag == 3:
-                #     cv2.line(img, (ix[0], iy[0]), (ix[tag], iy[tag]),
-                #              (0, 0, 255), 2)
                 drawing = False
 
             cv2.imshow('image', img)
@@ -141,9 +135,13 @@ def main(yolov3):
         pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]]])
         cv2.destroyWindow("image")
     # ===============================
+    if not ('pts' in dir()):
+        pts = np.array([])
+    judge = JUDGE(pts)
     fps = 0.0
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
+        order = order + 1
         if ret is not True:
             break
         t1 = time.time()
@@ -176,27 +174,56 @@ def main(yolov3):
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue
+            vx = track.mean[4]
+            vy = track.mean[5]
+            v = np.sqrt(vx**2 + vy**2)
             bbox = track.to_tlbr()
+            color = (255, 255, 255)  # default color
+
+            # 如果有限制速度
+            if G.ifspeed == 1:
+                if v > G.speedMax:
+                    if track.track_id not in person_list:
+                        person_list.append(track.track_id)
+                        alarm_tag = True  # alarm_tag 仅用于指示保存
+                    color = (0, 0, 255)
+
+            # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
+            if judge.determine(
+                (bbox[0] + bbox[2]) / 2, bbox[3]) or judge.determine(
+                    (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2):
+
+                if judge.determine_single(vx, vy, G.ifsingle_cross, G.ifregion,
+                                          G.ifreverse):
+                    if track.track_id not in person_list:
+                        person_list.append(track.track_id)
+                        alarm_tag = True  # alarm_tag 仅用于指示保存
+                    color = (0, 0, 255)
+
             # 白色是卡尔曼滤波预测的目标，绿的字
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
-                          (int(bbox[2]), int(bbox[3])), (255, 255, 255), 2)
+                          (int(bbox[2]), int(bbox[3])), color, 2)
 
-            strtemp = str(track.track_id) + " v = " + str(
-                round(np.sqrt(track.mean[4]**2 + track.mean[5]**2),
-                      3)) + " pixels/frame"
+            strtemp = str(track.track_id) + " v = " + str(round(
+                v, 3)) + " pixels/frame"
             cv2.putText(frame, strtemp, (int(bbox[0]), int(bbox[1])), 0,
                         5e-3 * 200, (0, 255, 0), 2)
 
         for det in detections:
             bbox = det.to_tlbr()
             # 蓝色是检测出的目标
+            color = (255, 0, 0)
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
-                          (int(bbox[2]), int(bbox[3])), (255, 0, 0), 2)
-        # ==============判断是否进入区域
-        frame = judge.draw(pts, frame)
+                          (int(bbox[2]), int(bbox[3])), color, 2)
+
+        # ==============绘制警戒区+作图==================
+        frame = judge.draw(frame)
         cv2.imshow('', frame)
+        if (alarm_tag is True) and (G.ifsave == 1):
+            cv2.imwrite("%s%s.jpg" % (G.pathToSave, order), frame)
+            alarm_tag = False
         # ==============储存视频 =====================
-        if writeVideo_flag:
+        if G.ifsave:
             # save a frame
             out.write(frame)
             frame_index = frame_index + 1
@@ -219,7 +246,7 @@ def main(yolov3):
     # ========= 结束全流程 ========
     yolov3.close_session()
     video_capture.release()
-    if writeVideo_flag:
+    if G.ifsave == 1:
         out.release()
         list_file.close()
     cv2.destroyAllWindows()

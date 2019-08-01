@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 import tkinter as tk
 ON = 1
 OFF = 0
@@ -10,13 +12,15 @@ class Gui():
         self.iffall = OFF
         self.ifregion = OFF
         self.ifline = OFF
-        self.ifsingle_cross = ON  # OFF 为双向穿越
+        self.ifsingle_cross = OFF  # 默认为双向穿越
+        self.ifreverse = OFF
         self.ifsave = OFF
         self.pathToLoad = "/home/tom/桌面/行人检测算法/people/003.avi"
-        self.pathToSave = "/alarm_frame"
+        self.pathToSave = "./alarm_frame/"
         self.speedMax = 10
 
     def gui(self):
+        # 作用： 绘制GUI界面并且获取参数
 
         root = tk.Tk()  # 创建窗口对象的背景色
         Bool_track = tk.IntVar()
@@ -24,6 +28,7 @@ class Gui():
         Bool_region = tk.IntVar()
         Bool_line = tk.IntVar()
         Bool_single_line = tk.IntVar()
+        Bool_reverse = tk.IntVar()
         Bool_save = tk.IntVar()
 
         S_entry = tk.StringVar()
@@ -66,6 +71,13 @@ class Gui():
                                        offvalue=OFF,
                                        height=10,
                                        width=30)  # if single cross?
+        C_reverse = tk.Checkbutton(root,
+                                   text="Reverse direction?",
+                                   variable=Bool_reverse,
+                                   onvalue=ON,
+                                   offvalue=OFF,
+                                   height=10,
+                                   width=30)  # if single cross?
         C_save = tk.Checkbutton(root,
                                 text="Save videos?",
                                 variable=Bool_save,
@@ -85,6 +97,7 @@ class Gui():
         C_region.pack()
         C_line.pack()
         C_single_line.pack()
+        C_reverse.pack()
         C_save.pack()
         tk.Label(root, text='File path of saving', width=30).pack()
         tk.Entry(root, textvariable=S_save,
@@ -99,8 +112,9 @@ class Gui():
         self.iffall = Bool_fall.get()
         self.ifregion = Bool_region.get()
         self.ifline = Bool_line.get()
-        self.single_cross = Bool_single_line.get()  # OFF 为双向穿越
-        self.save = Bool_save.get()
+        self.ifsingle_cross = Bool_single_line.get()  # OFF 为双向穿越
+        self.ifreverse = Bool_reverse.get()  # 横穿的方向是否改变
+        self.ifsave = Bool_save.get()
 
         Path_load = S_entry.get()
         if len(Path_load) != 0:
