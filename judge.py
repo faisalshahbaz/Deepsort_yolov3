@@ -87,7 +87,7 @@ class JUDGE(object):  # Object类是所有类都会继承的类
             return False
 
     def filter_vel(self, ID, v):
-        # 作用：对某个对象进行均值滤波
+        # 作用：对某个对象进行滤波
         # Input：
         # @ id：the id of object
         # @ v: velocity of object

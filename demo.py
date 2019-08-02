@@ -78,14 +78,14 @@ def main(yolov3):
     video_capture = cv2.VideoCapture(video_path)
 
     # ================= 储存视频 =================
-    if G.ifsave == 1:
-        # Define the codec and create VideoWriter object
-        w = int(video_capture.get(3))
-        h = int(video_capture.get(4))
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(G.pathToSave, fourcc, 15, (w, h))
-        list_file = open('detection.txt', 'w')
-        frame_index = -1
+    # if G.ifsave == 1:
+    #     # Define the codec and create VideoWriter object
+    #     w = int(video_capture.get(3))
+    #     h = int(video_capture.get(4))
+    #     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    #     out = cv2.VideoWriter(G.pathToSave, fourcc, 15, (w, h))
+    #     list_file = open('detection.txt', 'w')
+    #     frame_index = -1
     # ==============获取鼠标事件画区域的代码=================
     if G.ifregion == 1:  # 如果画警戒区域
         value, img = video_capture.read()
@@ -224,17 +224,17 @@ def main(yolov3):
             cv2.imwrite("%s%s.jpg" % (G.pathToSave, order), frame)
             alarm_tag = False
         # ==============储存视频 =====================
-        if G.ifsave:
-            # save a frame
-            out.write(frame)
-            frame_index = frame_index + 1
-            list_file.write(str(frame_index) + ' ')
-            if len(boxs) != 0:
-                for i in range(0, len(boxs)):
-                    list_file.write(
-                        str(boxs[i][0]) + ' ' + str(boxs[i][1]) + ' ' +
-                        str(boxs[i][2]) + ' ' + str(boxs[i][3]) + ' ')
-            list_file.write('\n')
+        # if G.ifsave:
+        #     # save a frame
+        #     out.write(frame)
+        #     frame_index = frame_index + 1
+        #     list_file.write(str(frame_index) + ' ')
+        #     if len(boxs) != 0:
+        #         for i in range(0, len(boxs)):
+        #             list_file.write(
+        #                 str(boxs[i][0]) + ' ' + str(boxs[i][1]) + ' ' +
+        #                 str(boxs[i][2]) + ' ' + str(boxs[i][3]) + ' ')
+        #     list_file.write('\n')
         # ============================================
 
         fps = (fps + (1. / (time.time() - t1))) / 2
@@ -247,9 +247,9 @@ def main(yolov3):
     # ========= 结束全流程 ========
     yolov3.close_session()
     video_capture.release()
-    if G.ifsave == 1:
-        out.release()
-        list_file.close()
+    # if G.ifsave == 1:
+    #     out.release()
+    #     list_file.close()
     cv2.destroyAllWindows()
 
 
