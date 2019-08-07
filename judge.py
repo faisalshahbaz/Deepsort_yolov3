@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import cv2
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
 
 
 class JUDGE(object):  # Object类是所有类都会继承的类
@@ -10,6 +12,10 @@ class JUDGE(object):  # Object类是所有类都会继承的类
         self.pts = pts
         self.list_id = []
         self.list_v = []
+        self.model = keras.models.load_model('fall_detec_model.h5')
+        input_shape = (1, 128)
+        self.model.build(input_shape)
+        self.model.summary()
 
     # def close(self):
     #     del self.black

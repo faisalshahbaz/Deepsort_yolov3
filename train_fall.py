@@ -4,16 +4,13 @@
 
 from __future__ import division, print_function, absolute_import
 
-import numpy as np
-from yolov3_tf import YOLOV3
-from Tk import Gui
-from judge import JUDGE
-
-from timeit import time
-import warnings
 import cv2
-
+import numpy as np
 # from yolo import YOLO
+
+# 导入TensorFlow和tf.keras
+import tensorflow as tf
+from tensorflow import keras
 
 from deep_sort import preprocessing
 from deep_sort import nn_matching
@@ -30,8 +27,6 @@ path = "data/photos/"
 max_cosine_distance = 0.3
 nn_budget = None
 nms_max_overlap = 0.3
-# f_data = open("train_data.txt", "w")
-# f_label = open("train_label.txt", "w")
 
 # deep_sort
 model_filename = 'model_data/mars-small128.pb'
@@ -66,52 +61,32 @@ for filename in os.listdir(path):
         print('stand!')
         train_label.append(1)
 
-# PCA
-pca = PCA(n_components=3)  # 2dimensions
-train_min_data = pca.fit_transform(train_data)
-print(train_min_data)
+train_array = np.array(train_data[0:34])
+train_labels = np.array(train_label[0:34])
 
-# x = cv2.UMat(train_min_data)
-# y = cv2.UMat(train_label)
+test_array = np.array(train_data[34:])
+test_labels = np.array(train_label[34:])
 
-# 可视化
-red_x, red_y, red_z = [], [], []
-blue_x, blue_y, blue_z = [], [], []
-for i in range(len(train_min_data)):
-    if train_label[i] == 1:
-        red_x.append(train_min_data[i][0])
-        red_y.append(train_min_data[i][1])
-        red_z.append(train_min_data[i][2])
-    else:
-        blue_x.append(train_min_data[i][0])
-        blue_y.append(train_min_data[i][1])
-        blue_z.append(train_min_data[i][2])
-# plt.scatter(red_x, red_y, c='r', marker='x')
-# plt.scatter(blue_x, blue_y, c='b', marker='D')
-# plt.show()
+# model = keras.Sequential([
+#     keras.layers.Dense(10, activation=tf.nn.relu),
+#     keras.layers.Dense(2, activation=tf.nn.softmax)
+# ])
 
-fig = plt.figure()
-ax = Axes3D(fig)
-ax.set_title("3D")
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
-ax.scatter(red_x, red_y, red_z, c='r')
-ax.scatter(blue_x, blue_y, blue_z, c='b')
-plt.show()
+# model.compile(optimizer='adam',
+#               loss='sparse_categorical_crossentropy',
+#               metrics=['accuracy'])
 
-# SVM
-svm = cv2.ml.SVM_create()  # create
-# 属性设置
-svm.setType(cv2.ml.SVM_C_SVC)
-svm.setKernel(cv2.ml.SVM_LINEAR)
-svm.setC(0.01)
-# 训练
+# model.fit(train_array, train_labels, epochs=250)
 
-result = svm.train(train_data, cv2.ml.ROW_SAMPLE, train_label)
+# test_loss, test_acc = model.evaluate(test_array, test_labels)
+# print('Test accuracy:', test_acc)
 
-# f_data.write(str(train_data))
-# f_label.write(str(train_label))
+# model.save('fall_detec_model.h5')
 
-# f_data.close()
-# f_label.close()
+model = keras.models.load_model('fall_detec_model.h5')
+input_shape = (1, 128)
+model.build(input_shape)
+model.summary()
+pre_y = model.predict(test_array)
+print(test_labels)
+print(pre_y)

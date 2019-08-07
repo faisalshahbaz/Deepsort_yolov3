@@ -21,6 +21,8 @@ from tools import generate_detections as gdet
 # from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
+# /home/tom/桌面/行人检测算法/测试视频/Funniest Falls.mp4
+
 tag = -1
 ix = [0, 0, 0, 0]
 iy = [0, 0, 0, 0]
@@ -188,6 +190,18 @@ def main(yolov3):
                         person_list.append(track.track_id)
                         alarm_tag = True  # alarm_tag 仅用于指示保存
                     color = (0, 0, 255)
+
+            # 如果有跌倒检测
+            if G.iffall == 1:
+                # if not track.is_confirmed():
+                #     continue
+                if v < G.speedMin:
+                    result = judge.model.predict(
+                        np.array(track.features_cons[-1:]))
+                    if len(result) != 0:
+                        result = result[0]
+                        if result[1] < result[0]:  # 0是跌倒，1是站立
+                            color = (0, 0, 255)
 
             # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
             if judge.determine(
