@@ -21,6 +21,7 @@
 *.zip
 *.pb
 *.h5
+*.png
 
 # Logs and databases #
 ######################
