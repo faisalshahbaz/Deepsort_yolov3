@@ -12,10 +12,11 @@ class JUDGE(object):  # Object类是所有类都会继承的类
         self.pts = pts
         self.list_id = []
         self.list_v = []
-        self.model = keras.models.load_model('fall_detec_model.h5')
+        self.model = keras.models.load_model('fall_detec_model_09475.h5')
         input_shape = (1, 128)
         self.model.build(input_shape)
         self.model.summary()
+        # 目前还用不到摔倒检测。其实摔倒检测这个应该单独封装一个类的
 
     # def close(self):
     #     del self.black

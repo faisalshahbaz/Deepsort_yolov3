@@ -81,13 +81,7 @@ def main(yolov3):
 
     # ================= 储存视频 =================
     # if G.ifsave == 1:
-    #     # Define the codec and create VideoWriter object
-    #     w = int(video_capture.get(3))
-    #     h = int(video_capture.get(4))
-    #     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    #     out = cv2.VideoWriter(G.pathToSave, fourcc, 15, (w, h))
-    #     list_file = open('detection.txt', 'w')
-    #     frame_index = -1
+    #
     # ==============获取鼠标事件画区域的代码=================
     if G.ifregion == 1:  # 如果画警戒区域
         value, img = video_capture.read()
@@ -199,9 +193,10 @@ def main(yolov3):
                     result = judge.model.predict(
                         np.array(track.features_cons[-1:]))
                     if len(result) != 0:
-                        result = result[0]
-                        if result[1] < result[0]:  # 0是跌倒，1是站立
+                        result = np.array(result[0])
+                        if ((result[1] / result[0]) > 4):  # 第二个数字大是跌倒
                             color = (0, 0, 255)
+                            print(result)
 
             # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
             if judge.determine(
@@ -216,6 +211,17 @@ def main(yolov3):
                     color = (0, 0, 255)
 
             # 白色是卡尔曼滤波预测的目标，绿的字
+            # ============积累样本搞的临时代码==============
+            if 'people_number' not in dir():
+                people_number = 0
+
+            if alarm_tag is True:
+                people_number += 1
+                photo = frame[int(bbox[0]):int(bbox[2]),
+                              int(bbox[1]):int(bbox[3])]
+                cv2.imshow('abc', photo)
+
+            # ===========================================
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
                           (int(bbox[2]), int(bbox[3])), color, 2)
 
@@ -239,16 +245,6 @@ def main(yolov3):
             alarm_tag = False
         # ==============储存视频 =====================
         # if G.ifsave:
-        #     # save a frame
-        #     out.write(frame)
-        #     frame_index = frame_index + 1
-        #     list_file.write(str(frame_index) + ' ')
-        #     if len(boxs) != 0:
-        #         for i in range(0, len(boxs)):
-        #             list_file.write(
-        #                 str(boxs[i][0]) + ' ' + str(boxs[i][1]) + ' ' +
-        #                 str(boxs[i][2]) + ' ' + str(boxs[i][3]) + ' ')
-        #     list_file.write('\n')
         # ============================================
 
         fps = (fps + (1. / (time.time() - t1))) / 2

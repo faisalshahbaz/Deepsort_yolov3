@@ -18,7 +18,7 @@ class Gui():
         self.pathToLoad = "/home/tom/桌面/行人检测算法/people/003.avi"
         self.pathToSave = "./alarm_frame/"
         self.speedMax = 10
-        self.speedMin = 2
+        self.speedMin = 4
 
     def gui(self):
         # 作用： 绘制GUI界面并且获取参数
