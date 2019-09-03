@@ -131,6 +131,8 @@ def main(yolov3):
         pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]]])
         cv2.destroyWindow("image")
     # ===============================
+
+    # ============读取=============
     if not ('pts' in dir()):
         pts = np.array([])
     judge = JUDGE(pts)
@@ -145,6 +147,8 @@ def main(yolov3):
         # image = Image.fromarray(frame)
         # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
+
+        # ============检测=============
         boxs = yolov3.detect_image(frame)  # 从这里开始检测
         # boxs = yolov3_tf.detect_image(image)
         # print("box_num",len(boxs))
@@ -189,14 +193,16 @@ def main(yolov3):
             if G.iffall == 1:
                 # if not track.is_confirmed():
                 #     continue
-                if v < G.speedMin:
-                    result = judge.model.predict(
-                        np.array(track.features_cons[-1:]))
+                sample = np.array(
+                    track.features_cons[0:1]
+                )  # features_cons 里边保存了多次的检测数据，以应对遮挡等突然变化的情况. 原为[-1:0]
+
+                if v < G.speedMin and sample.size == 128:
+                    result = judge.model.predict(sample)
                     if len(result) != 0:
                         result = np.array(result[0])
                         if ((result[1] / result[0]) > 4):  # 第二个数字大是跌倒
                             color = (0, 0, 255)
-                            print(result)
 
             # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
             if judge.determine(
@@ -210,18 +216,18 @@ def main(yolov3):
                         alarm_tag = True  # alarm_tag 仅用于指示保存
                     color = (0, 0, 255)
 
-            # 白色是卡尔曼滤波预测的目标，绿的字
             # ============积累样本搞的临时代码==============
-            if 'people_number' not in dir():
-                people_number = 0
+            # if 'people_number' not in dir():
+            #     people_number = 0
 
-            if alarm_tag is True:
-                people_number += 1
-                photo = frame[int(bbox[0]):int(bbox[2]),
-                              int(bbox[1]):int(bbox[3])]
-                cv2.imshow('abc', photo)
-
+            # if alarm_tag is True:
+            #     people_number += 1
+            #     photo = frame[int(bbox[0]):int(bbox[2]),
+            #                   int(bbox[1]):int(bbox[3])]
+            #     cv2.imshow('abc', photo)
             # ===========================================
+
+            # 白色是卡尔曼滤波预测的目标，绿的字
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
                           (int(bbox[2]), int(bbox[3])), color, 2)
 

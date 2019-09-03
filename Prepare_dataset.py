@@ -9,6 +9,8 @@ import numpy as np
 from tqdm import tqdm
 from core import utils
 import cv2
+import math
+import random
 
 
 def load_sameple(sample_dir, shuffleflag=True):
@@ -60,9 +62,60 @@ def makeTFRec(filenames, labels):  # 定义生成TFRecord的函数
 
 
 def main():
-    directory = '/home/tom/桌面/行人检测算法/Fall_Upright_people'
-    (filenames, labels), _ = load_sameple(directory, shuffleflag=False)
-    makeTFRec(filenames, labels)
+    # =======================制作TFRecord数据===================
+    # directory = '/home/tom/桌面/行人检测算法/Fall_Upright_people'
+    # (filenames, labels), _ = load_sameple(directory, shuffleflag=False)
+    # makeTFRec(filenames, labels)
+    # Definition of the parameters
+    # =======================================================
+
+    path_fall = "/home/tom/桌面/行人检测算法/people/Fall_Augmentation/"
+    path_upright = "/home/tom/桌面/行人检测算法/people/Upright_Augmentation/"
+
+    # ========================翻转样本==========================
+    # for filename in os.listdir(path_fall):
+    #     frame = cv2.imread(path_fall + filename)
+    #     frame_horizontal = frame.copy()
+    #     frame_horizontal = cv2.flip(frame, 1)
+    #     filename = os.path.splitext(filename)[0]
+    #     cv2.imwrite("%s%s.png" % (path_fall, filename + '_r'),
+    #                 frame_horizontal)
+    # ===========================================================
+
+    # =======================随机截取样本========================
+    # for filename in os.listdir(path_fall):
+    #     frame = cv2.imread(path_fall + filename)
+    #     frame_interception = frame.copy()
+    #     size = frame_interception.shape
+    #     h = math.floor(size[0] * 0.8)  # 被截取图像的高和宽
+    #     w = math.floor(size[1] * 0.8)
+    #     y = random.randint(0, math.floor(size[0] * 0.2))
+    #     x = random.randint(0, math.floor(size[1] * 0.2))
+
+    #     frame_interception = frame[y:h, x:w, :]
+
+    #     filename = os.path.splitext(filename)[0]
+    #     cv2.imwrite("%s%s.png" % (path_fall, filename + '_i'),
+    #                 frame_interception)
+    # ======================================================
+
+    # =================== 改变光照等条件 ========================
+    path = path_upright
+    num = 0
+    for filename in os.listdir(path):
+        frame = cv2.imread(path + filename)
+
+        # alpha * src + beta
+        # alpha = 0.1 * random.randrange(10, 30, 1)
+        alpha = 0.1 * random.randrange(10, 13, 1)
+        beta = random.randrange(-30, 30, 1)
+
+        frame_brightness = cv2.convertScaleAbs(frame, alpha=alpha, beta=beta)
+
+        filename = os.path.splitext(filename)[0]
+        cv2.imwrite("%s%s.png" % (path, filename + '_b'), frame_brightness)
+        num += 1
+        print(num)
 
 
 if __name__ == '__main__':

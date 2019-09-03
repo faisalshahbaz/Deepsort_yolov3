@@ -22,13 +22,18 @@ import os
 from sklearn.model_selection import train_test_split
 
 # Definition of the parameters
-path_fall = "/home/tom/桌面/行人检测算法/people/Fall/"
-path_upright = "/home/tom/桌面/行人检测算法/people/Upright/"
+path_fall = "/home/tom/桌面/行人检测算法/people/Fall_Augmentation/"
+path_upright = "/home/tom/桌面/行人检测算法/people/Upright_Augmentation/"
 max_cosine_distance = 0.3
 nn_budget = None
 nms_max_overlap = 0.3
+fall_data = []
+upright_data = []
 
-# deep_sort，特征提取的时候使用下边四行代码
+X = []
+Y = []
+
+#======================= 特征提取处理样本的代码 ============================
 # model_filename = 'model_data/mars-small128.pb'
 # encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
@@ -37,16 +42,7 @@ nms_max_overlap = 0.3
 #                                                    nn_budget)
 # tracker = Tracker(metric)
 
-# 取800+1600样本为训练集
-# 剩余200+400多样本为测试集
-# 之后进行排序
-fall_data = []
-upright_data = []
-
-X = []
-Y = []
-
-# # 检测处理，特征提取的时候使用下边四行代码
+# num = 0
 # for filename in os.listdir(path_fall):
 #     frame = cv2.imread(path_fall + filename)
 #     # box 需要 x, y, w, h的格式
@@ -60,7 +56,10 @@ Y = []
 #     # fall_data.append(feature[0, :])
 #     X.append(feature[0, :])
 #     Y.append(1)  # 跌倒是1，第二个数字大跌倒
+#     num += 1
+#     print(num)
 
+# num = 0
 # for filename in os.listdir(path_upright):
 #     frame = cv2.imread(path_upright + filename)
 #     # box 需要 x, y, w, h的格式
@@ -74,9 +73,13 @@ Y = []
 #     # upright_data.append(feature[0, :])
 #     X.append(feature[0, :])
 #     Y.append(0)
+#     num += 1
+#     print(num)
 
 # np.savetxt("X.txt", X)
 # np.savetxt("Y.txt", Y)
+
+# =======================读取数据=====================
 
 X = np.loadtxt("X.txt")
 Y = np.loadtxt("Y.txt")
@@ -86,27 +89,36 @@ X_train, X_test, Y_train, Y_test = train_test_split(X,
                                                     test_size=0.2,
                                                     random_state=42)
 # random_state 保证每次随机完结果都一样
+# ===================================================
 
-model = keras.Sequential([
-    keras.layers.Dense(20, activation=tf.nn.relu),
-    keras.layers.Dense(2, activation=tf.nn.softmax)
-])
+# ======================训练模型=======================
+# model = keras.Sequential()
+# model.add(keras.layers.Dense(units=20, activation='relu', input_dim=128))
+# model.add(keras.layers.Dense(units=2, activation='softmax'))
 
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+# # model = keras.Sequential([
+# #     keras.layers.Dense(20, activation=tf.nn.relu),
+# #     keras.layers.Dense(2, activation=tf.nn.softmax)
+# # ])
 
-model.fit(X_train, Y_train, epochs=150)
+# model.compile(optimizer='adam',
+#               loss='sparse_categorical_crossentropy',
+#               metrics=['accuracy'])
 
-test_loss, test_acc = model.evaluate(X_test, Y_test)
-print('Test accuracy:', test_acc)
+# model.fit(X_train, Y_train, epochs=200)
 
-model.save('fall_detec_model.h5')
+# test_loss, test_acc = model.evaluate(X_test, Y_test)
+# print('Test accuracy:', test_acc)
+# model.save('fall_detec_model.h5')
 
-# model = keras.models.load_model('fall_detec_model_09475.h5')
-# input_shape = (1, 128)
-# model.build(input_shape)
-# model.summary()
-# pre_y = model.predict(X_test)
-# print(Y_test)
-# print(pre_y)
+# ================================================================================
+
+# ========================测试代码=========================
+model = keras.models.load_model('fall_detec_model_09475.h5')
+input_shape = (1, 128)
+model.build(input_shape)
+model.summary()
+pre_y = model.predict(X_test)
+print(Y_test)
+print(pre_y)
+# =======================================================

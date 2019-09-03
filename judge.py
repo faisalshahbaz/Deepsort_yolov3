@@ -12,7 +12,7 @@ class JUDGE(object):  # Object类是所有类都会继承的类
         self.pts = pts
         self.list_id = []
         self.list_v = []
-        self.model = keras.models.load_model('fall_detec_model_09475.h5')
+        self.model = keras.models.load_model('fall_detec_model_09700.h5')
         input_shape = (1, 128)
         self.model.build(input_shape)
         self.model.summary()
@@ -96,9 +96,9 @@ class JUDGE(object):  # Object类是所有类都会继承的类
     def filter_vel(self, ID, v):
         # 作用：对某个对象进行滤波
         # Input：
-        # @ id：the id of object
-        # @ v: velocity of object
-        # @ Return: velocity after filter
+        # @ id：the id of the object
+        # @ v: velocity of the object
+        # @ Return: velocity after filtering
         # first time
         if ID not in self.list_id:
             if len(self.list_id) > 100:  # 存储速度数据的上限是100人

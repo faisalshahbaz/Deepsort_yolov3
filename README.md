@@ -7,6 +7,7 @@
 3. 了解常用的目标检测算法。我已经实现了：传统算法包括GMM和ViBe，机器学习算法HOG+SVM和深度学习算法YOLOV3。目前我使用YOLOV3算法进行目标检测功能。
 4. 了解常用的目标追踪算法。目前我使用Deep Sort算法进行目标追踪。
 5. 掌握优化计算资源的一些方法。
+6. 训练跌倒直立分类器
 
 YOLOv3算法和Deep Sort算法的代码参考了以下几个项目:
  https://github.com/Qidian213/deep_sort_yolov3
