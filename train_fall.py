@@ -48,8 +48,8 @@ Y = []
 #     # box 需要 x, y, w, h的格式
 #     x = 0
 #     y = 0
-#     w = frame.shape[0]
-#     h = frame.shape[1]
+#     w = frame.shape[1]
+#     h = frame.shape[0]
 #     box = [x, y, w, h]
 
 #     feature = encoder(frame, [box])
@@ -65,8 +65,8 @@ Y = []
 #     # box 需要 x, y, w, h的格式
 #     x = 0
 #     y = 0
-#     w = frame.shape[0]
-#     h = frame.shape[1]
+#     w = frame.shape[1]  # 这里的顺序一定要注意，最开始我就写错了
+#     h = frame.shape[0]
 #     box = [x, y, w, h]
 
 #     feature = encoder(frame, [box])
@@ -92,33 +92,28 @@ X_train, X_test, Y_train, Y_test = train_test_split(X,
 # ===================================================
 
 # ======================训练模型=======================
-# model = keras.Sequential()
-# model.add(keras.layers.Dense(units=20, activation='relu', input_dim=128))
-# model.add(keras.layers.Dense(units=2, activation='softmax'))
+model = keras.Sequential()
+model.add(keras.layers.Dense(units=20, activation='relu', input_dim=128))
+model.add(keras.layers.Dense(units=2, activation='softmax'))
 
-# # model = keras.Sequential([
-# #     keras.layers.Dense(20, activation=tf.nn.relu),
-# #     keras.layers.Dense(2, activation=tf.nn.softmax)
-# # ])
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
 
-# model.compile(optimizer='adam',
-#               loss='sparse_categorical_crossentropy',
-#               metrics=['accuracy'])
+model.fit(X_train, Y_train, epochs=200)
 
-# model.fit(X_train, Y_train, epochs=200)
-
-# test_loss, test_acc = model.evaluate(X_test, Y_test)
-# print('Test accuracy:', test_acc)
-# model.save('fall_detec_model.h5')
+test_loss, test_acc = model.evaluate(X_test, Y_test)
+print('Test accuracy:', test_acc)
+model.save('fall_detec_model.h5')
 
 # ================================================================================
 
 # ========================测试代码=========================
-model = keras.models.load_model('fall_detec_model_09475.h5')
-input_shape = (1, 128)
-model.build(input_shape)
-model.summary()
-pre_y = model.predict(X_test)
-print(Y_test)
-print(pre_y)
+# model = keras.models.load_model('fall_detec_model_09475.h5')
+# input_shape = (1, 128)
+# model.build(input_shape)
+# model.summary()
+# pre_y = model.predict(X_test)
+# print(Y_test)
+# print(pre_y)
 # =======================================================

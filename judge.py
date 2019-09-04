@@ -12,7 +12,7 @@ class JUDGE(object):  # Object类是所有类都会继承的类
         self.pts = pts
         self.list_id = []
         self.list_v = []
-        self.model = keras.models.load_model('fall_detec_model_09700.h5')
+        self.model = keras.models.load_model('fall_detec_model_09830.h5')
         input_shape = (1, 128)
         self.model.build(input_shape)
         self.model.summary()

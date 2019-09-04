@@ -113,7 +113,6 @@ def main(yolov3):
         value, img = video_capture.read()
         # rotate the img
         # img = np.rot90(img, -1)
-
         cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
         cv2.setMouseCallback(
             "image", draw_line)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
@@ -149,15 +148,32 @@ def main(yolov3):
         # image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
 
         # ============检测=============
-        boxs = yolov3.detect_image(frame)  # 从这里开始检测
-        # boxs = yolov3_tf.detect_image(image)
-        # print("box_num",len(boxs))
-        features = encoder(frame, boxs)
+        bboxes = yolov3.detect_image(frame)  # 从这里开始检测
+        # bboxes = yolov3_tf.detect_image(image)
+        # print("box_num",len(bboxes))
+
+        # =============测试Bbox的坐标对不对=============
+        # for bbox in bboxes:
+        #     x1 = bbox[0]
+        #     y1 = bbox[1]
+        #     x2 = bbox[0] + bbox[2] - 1
+        #     y2 = bbox[1] + bbox[3] - 1
+        #     # photo1 = frame[int(bbox[0]):int(bbox[2]),
+        #     #                int(bbox[1]):int(bbox[3])]
+        #     # cv2.imshow('photo1', photo1)
+        #     # cv2.waitKey(0)
+        #     photo2 = frame[int(y1):int(y2 + 1), int(x1):int(x2 + 1), :]
+        #     cv2.imshow('photo1', photo2)
+        #     cv2.waitKey(0)
+        #     # 如果Bbox的坐标是正确形式，那么photo2是正确的，photo1是错误的
+        # ============================================
+
+        features = encoder(frame, bboxes)  # boxes必须是x, y, w, h的格式
 
         # score to 1.0 here).
         detections = [
             Detection(bbox, 1.0, feature)
-            for bbox, feature in zip(boxs, features)
+            for bbox, feature in zip(bboxes, features)
         ]
 
         # Run non-maxima suppression.
@@ -178,7 +194,7 @@ def main(yolov3):
             vy = track.mean[5]
             v = np.sqrt(vx**2 + vy**2)
             v = judge.filter_vel(track.track_id, v)  # 对速度进行平滑处理
-            bbox = track.to_tlbr()
+            bbox = track.to_tlbr()  # 这个已经从xywh转成xyxy格式了
             color = (255, 255, 255)  # default color
 
             # 如果有限制速度
@@ -197,12 +213,14 @@ def main(yolov3):
                     track.features_cons[0:1]
                 )  # features_cons 里边保存了多次的检测数据，以应对遮挡等突然变化的情况. 原为[-1:0]
 
-                if v < G.speedMin and sample.size == 128:
+                # if v < G.speedMin and sample.size == 128:
+                if sample.size == 128:
                     result = judge.model.predict(sample)
                     if len(result) != 0:
                         result = np.array(result[0])
-                        if ((result[1] / result[0]) > 4):  # 第二个数字大是跌倒
+                        if ((result[1] - result[0]) > 0.5):  # 第二个数字大是跌倒
                             color = (0, 0, 255)
+                            print(result)
 
             # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
             if judge.determine(
