@@ -22,20 +22,21 @@ class JUDGE(object):  # Object类是所有类都会继承的类
     # def close(self):
     #     del self.black
 
-    def draw(self, image):
+    def draw(self, image, drawing_tag):
         # 作用：在图像上绘制警戒区域
         # Input: image
         # Return: image with alarm area or alarm line
-        if (self.pts.size < 2):
-            return image
-        elif self.pts.size > 4:  # 区域
-            cv2.fillPoly(self.black, [self.pts], (255, 255, 255))
-            self.contours, self.hierarchy = cv2.findContours(
-                self.black, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            cv2.drawContours(image, self.contours, -1, (0, 0, 255), 2)
-        else:
-            cv2.line(image, (self.pts[0, 0], self.pts[0, 1]),
-                     (self.pts[1, 0], self.pts[1, 1]), (0, 0, 255), 2)
+        if drawing_tag is True:
+            if (self.pts.size < 2):
+                return image
+            elif self.pts.size > 4:  # 区域
+                cv2.fillPoly(self.black, [self.pts], (255, 255, 255))
+                self.contours, self.hierarchy = cv2.findContours(
+                    self.black, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                cv2.drawContours(image, self.contours, -1, (0, 0, 255), 2)
+            else:
+                cv2.line(image, (self.pts[0, 0], self.pts[0, 1]),
+                         (self.pts[1, 0], self.pts[1, 1]), (0, 0, 255), 2)
         return image
 
     def determine(self, x, y):
@@ -152,7 +153,7 @@ class JUDGE(object):  # Object类是所有类都会继承的类
                     self.fall_list_id.pop(k)  # 如果太长时间不跌倒，就移除
 
         if self.fall_list_id.get(ID) >= (removed_th + fall_th):
-            self.fall_list_id[ID] += 2  # 一旦判定为真正跌倒，就加一些生命值2，得以保持跌倒状态
+            self.fall_list_id[ID] += 2.5  # 一旦判定为真正跌倒，就加一些生命值2，得以保持跌倒状态
             return True
         else:
             return False

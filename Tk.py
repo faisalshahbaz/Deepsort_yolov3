@@ -19,7 +19,7 @@ class Gui():
         self.pathToSave = "./alarm_frame/"
         self.speedMax = 10
         self.speedMin = 4
-        self.fall_frame = 5
+        self.fall_frame = 3
 
     def gui(self):
         # 作用： 绘制GUI界面并且获取参数
@@ -97,7 +97,7 @@ class Gui():
         tk.Label(root, text='Maximum speed (default 10 pixels/frame)').pack()
         tk.Entry(root, textvariable=S_speed, width=30).pack()  # max speed
         C_fall.pack()
-        tk.Label(root, text='Fall time (frames)').pack()
+        tk.Label(root, text='Fall time (default 3 frames)').pack()
         tk.Entry(root, textvariable=S_fallFrame, width=30).pack()  # max speed
         C_region.pack()
         C_line.pack()
@@ -108,7 +108,7 @@ class Gui():
         tk.Entry(root, textvariable=S_save,
                  width=30).pack()  # address of writing file
 
-        tk.Button(root, text="Finish!", command=root.quit,
+        tk.Button(root, text="Finish!", command=root.destroy,
                   height=10).pack()  # command只写函数名！
 
         root.mainloop()  # 进入消息循环
