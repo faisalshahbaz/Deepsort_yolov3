@@ -10,6 +10,7 @@ class JUDGE(object):  # Object类是所有类都会继承的类
     def __init__(self, pts, height=1080, width=1920):
         self.black = np.zeros([height, width], dtype=np.uint8)
         self.pts = pts
+        self.fall_list_id = dict()  # dict
         self.list_id = []
         self.list_v = []
         self.model = keras.models.load_model('fall_detec_model_09830.h5')
@@ -120,3 +121,38 @@ class JUDGE(object):  # Object类是所有类都会继承的类
             return (array[half] + array[~half]) / 2
             # 均值滤波
             # return sum(v_array) / len(v_array)
+
+    def determine_falling(self, ID, Sample, n_frames):
+        # 作用：判断某个对象是否已经满足跌倒判定条件。
+        # Input:
+        # @ ID: the id of the object which needs to judge falling
+        # @ Sample: the feature of the object
+        # @ Return Bool   T/F
+        removed_th = 5  # 如果有removed_th帧这个目标没有跌倒，则从字典中剔除这个ID
+        fall_th = n_frames  # 如果有fall_th帧这个目标都跌倒了，则判断为跌倒
+        if Sample.size == 128:
+            result = self.model.predict(Sample)
+            if len(result) != 0:
+                result = np.array(result[0])
+                if ((result[1] - result[0]) > 0.5):  # 满足跌倒判据
+                    if self.fall_list_id.__contains__(ID):  # 如果有这个ID
+                        self.fall_list_id[ID] += 2
+                    else:
+                        self.fall_list_id[ID] = removed_th  # 没有这个ID，加一个
+                else:
+                    return False
+        else:
+            return False
+
+        if bool(self.fall_list_id):
+            for k in self.fall_list_id:
+                self.fall_list_id[k] -= 1  # 所有值自动减一
+            for k in self.fall_list_id.copy():  # 必须用copy迭代，因为dict在迭代的时候不能改变
+                if self.fall_list_id.get(k) == 0:
+                    self.fall_list_id.pop(k)  # 如果太长时间不跌倒，就移除
+
+        if self.fall_list_id.get(ID) >= (removed_th + fall_th):
+            self.fall_list_id[ID] += 2  # 一旦判定为真正跌倒，就加一些生命值2，得以保持跌倒状态
+            return True
+        else:
+            return False

@@ -149,8 +149,6 @@ def main(yolov3):
 
         # ============检测=============
         bboxes = yolov3.detect_image(frame)  # 从这里开始检测
-        # bboxes = yolov3_tf.detect_image(image)
-        # print("box_num",len(bboxes))
 
         # =============测试Bbox的坐标对不对=============
         # for bbox in bboxes:
@@ -214,13 +212,17 @@ def main(yolov3):
                 )  # features_cons 里边保存了多次的检测数据，以应对遮挡等突然变化的情况. 原为[-1:0]
 
                 # if v < G.speedMin and sample.size == 128:
-                if sample.size == 128:
-                    result = judge.model.predict(sample)
-                    if len(result) != 0:
-                        result = np.array(result[0])
-                        if ((result[1] - result[0]) > 0.5):  # 第二个数字大是跌倒
-                            color = (0, 0, 255)
-                            print(result)
+                # if sample.size == 128:
+                #     result = judge.model.predict(sample)
+                #     if len(result) != 0:
+                #         result = np.array(result[0])
+                #         if ((result[1] - result[0]) > 0.5):  # 第二个数字大是跌倒
+                #             color = (0, 0, 255)
+                #             print(result)
+
+                if track.track_id:
+                    if judge.determine_falling(track.track_id, sample) is True:
+                        color = (0, 0, 255)
 
             # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
             if judge.determine(

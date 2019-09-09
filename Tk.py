@@ -19,6 +19,7 @@ class Gui():
         self.pathToSave = "./alarm_frame/"
         self.speedMax = 10
         self.speedMin = 4
+        self.fall_frame = 5
 
     def gui(self):
         # 作用： 绘制GUI界面并且获取参数
@@ -35,6 +36,7 @@ class Gui():
         S_entry = tk.StringVar()
         S_save = tk.StringVar()
         S_speed = tk.StringVar()
+        S_fallFrame = tk.StringVar()
 
         C_track = tk.Checkbutton(root,
                                  text="Does it has speed limit?",
@@ -92,9 +94,11 @@ class Gui():
         tk.Entry(root, textvariable=S_entry,
                  width=30).pack()  # address of file
         C_track.pack()
-        tk.Label(root, text='Maximum speed').pack()
+        tk.Label(root, text='Maximum speed (default 10 pixels/frame)').pack()
         tk.Entry(root, textvariable=S_speed, width=30).pack()  # max speed
         C_fall.pack()
+        tk.Label(root, text='Fall time (frames)').pack()
+        tk.Entry(root, textvariable=S_fallFrame, width=30).pack()  # max speed
         C_region.pack()
         C_line.pack()
         C_single_line.pack()
@@ -128,3 +132,7 @@ class Gui():
         speed = S_speed.get()
         if len(speed) != 0:
             self.speedMax = int(speed)
+
+        fallFrame = S_fallFrame.get()
+        if len(fallFrame) != 0:
+            self.fall_frame = int(fallFrame)
