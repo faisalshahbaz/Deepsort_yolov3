@@ -1,5 +1,8 @@
 # ! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+这段代码包含的类，主要是与判断相关的函数。
+"""
 import cv2
 import numpy as np
 import tensorflow as tf

@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+主要的demo。运行即可。
+"""
 
 from __future__ import division, print_function, absolute_import
 

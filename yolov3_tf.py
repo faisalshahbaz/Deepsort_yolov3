@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Run a tensorflow YOLO_v3 style detection model.
+这个是我所使用的ＹＯＬＯＶ3模型。是基于tensorflow写的。
 """
 
 import cv2

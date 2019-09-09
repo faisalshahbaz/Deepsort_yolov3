@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# 这段代码可以将图片文件变成TFRecord数据集，之后再变成dataset数据集
+"""
+这段代码的函数可以将图片文件变成TFRecord数据集
+main函数主要进行了样本数据的增广处理
+"""
 import os
 import tensorflow as tf
 # from PIL import Image

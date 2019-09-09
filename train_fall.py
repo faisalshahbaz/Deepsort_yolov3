@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# 这个程序用来处理照片，提取特征
+"""
+这个程序用来处理照片，提取特征,训练跌倒分类器并保存模型。
+"""
 
 from __future__ import division, print_function, absolute_import
 
@@ -34,6 +36,7 @@ X = []
 Y = []
 
 #======================= 特征提取处理样本的代码 ============================
+
 # model_filename = 'model_data/mars-small128.pb'
 # encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 

@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+该类包含了与gui界面相关的方方面面。
+"""
 import tkinter as tk
 ON = 1
 OFF = 0
@@ -15,7 +18,7 @@ class Gui():
         self.ifsingle_cross = OFF  # 默认为双向穿越
         self.ifreverse = OFF
         self.ifsave = OFF
-        self.pathToLoad = "/home/tom/桌面/行人检测算法/people/003.avi"
+        self.pathToLoad = "/home/tom/桌面/行人检测算法/测试数据/监控视频/003.avi"
         self.pathToSave = "./alarm_frame/"
         self.speedMax = 10
         self.speedMin = 4
@@ -93,20 +96,22 @@ class Gui():
         tk.Label(root, text='File path of opening').pack()
         tk.Entry(root, textvariable=S_entry,
                  width=30).pack()  # address of file
+        C_save.pack()
+        tk.Label(root, text='File path of saving', width=30).pack()
+        tk.Entry(root, textvariable=S_save,
+                 width=30).pack()  # address of writing file
+
+        C_region.pack()
+        C_line.pack()
+        C_single_line.pack()
+        C_reverse.pack()
+
         C_track.pack()
         tk.Label(root, text='Maximum speed (default 10 pixels/frame)').pack()
         tk.Entry(root, textvariable=S_speed, width=30).pack()  # max speed
         C_fall.pack()
         tk.Label(root, text='Fall time (default 3 frames)').pack()
         tk.Entry(root, textvariable=S_fallFrame, width=30).pack()  # max speed
-        C_region.pack()
-        C_line.pack()
-        C_single_line.pack()
-        C_reverse.pack()
-        C_save.pack()
-        tk.Label(root, text='File path of saving', width=30).pack()
-        tk.Entry(root, textvariable=S_save,
-                 width=30).pack()  # address of writing file
 
         tk.Button(root, text="Finish!", command=root.destroy,
                   height=10).pack()  # command只写函数名！
