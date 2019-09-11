@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Run a tensorflow YOLO_v3 style detection model.
+这个是我所使用的ＹＯＬＯＶ3模型。是基于tensorflow写的。
 """
 
 import cv2
@@ -52,8 +53,8 @@ class YOLOV3(object):  # Object类是所有类都会继承的类
         bboxes = utils.postprocess_boxes(pred_bbox, original_image_size,
                                          self.input_size, 0.3)
         # bboxes = utils.nms(bboxes, 0.45, method='nms')
-        bboxes[:, 2] = bboxes[:, 2] - bboxes[:, 0]
-        bboxes[:, 3] = bboxes[:, 3] - bboxes[:, 1]
+        bboxes[:, 2] = bboxes[:, 2] - bboxes[:, 0] + 1  # 从xyxy格式的box变为xywh
+        bboxes[:, 3] = bboxes[:, 3] - bboxes[:, 1] + 1
 
         boxes = []
         for bbox in bboxes:
@@ -66,7 +67,7 @@ class YOLOV3(object):  # Object类是所有类都会继承的类
         # x = boxes[:, 0]
         # y = boxes[:, 1]
 
-        boxes = np.trunc(boxes)
+        boxes = np.trunc(boxes)  # 取整
         return boxes
         # return np.concatenate([
         #     x[:, np.newaxis], y[:, np.newaxis], w[:, np.newaxis],

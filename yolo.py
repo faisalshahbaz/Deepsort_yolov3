@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Run a YOLO_v3 style detection model on test images.
+这段代码是原Deep sort+yolov3识别的代码中的yolo部分，因为速度较慢（比tensorflow版本慢两到三帧）我没有使用
+
 """
 
 import colorsys

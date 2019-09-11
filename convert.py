@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
 Reads Darknet config and weights and creates Keras model with TF backend.
-
+转换模型权重的程序。
 """
 
 import argparse

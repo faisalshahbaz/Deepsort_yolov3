@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# 这个程序用来处理照片，提取特征
+"""
+这个程序用来处理照片，提取特征,训练跌倒分类器并保存模型。
+"""
 
 from __future__ import division, print_function, absolute_import
 
 import cv2
+from numpy import random
 import numpy as np
 # from yolo import YOLO
 
@@ -18,75 +21,102 @@ from deep_sort.detection import Detection
 from deep_sort.tracker import Tracker
 from tools import generate_detections as gdet
 import os
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+from sklearn.model_selection import train_test_split
 
 # Definition of the parameters
-path = "data/photos/"
+path_fall = "/home/tom/桌面/行人检测算法/people/Fall_Augmentation/"
+path_upright = "/home/tom/桌面/行人检测算法/people/Upright_Augmentation/"
 max_cosine_distance = 0.3
 nn_budget = None
 nms_max_overlap = 0.3
+fall_data = []
+upright_data = []
 
-# deep_sort
-model_filename = 'model_data/mars-small128.pb'
-encoder = gdet.create_box_encoder(model_filename, batch_size=1)
+X = []
+Y = []
 
-metric = nn_matching.NearestNeighborDistanceMetric("cosine",
-                                                   max_cosine_distance,
-                                                   nn_budget)
-tracker = Tracker(metric)
+#======================= 特征提取处理样本的代码 ============================
 
-train_data = []
-train_label = []
+# model_filename = 'model_data/mars-small128.pb'
+# encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
-# 检测处理
-for filename in os.listdir(path):
-    frame = cv2.imread(path + filename)
-    # box 需要 x, y, w, h的格式
-    x = 0
-    y = 0
-    w = frame.shape[0]
-    h = frame.shape[1]
-    box = [x, y, w, h]
+# metric = nn_matching.NearestNeighborDistanceMetric("cosine",
+#                                                    max_cosine_distance,
+#                                                    nn_budget)
+# tracker = Tracker(metric)
 
-    feature = encoder(frame, [box])
-    train_data.append(feature[0, :])
-    # print(feature)
-    print(filename)
-    if filename.find('fall') != -1:
-        print('fall!')
-        train_label.append(0)
-    elif filename.find('stand') != -1:
-        print('stand!')
-        train_label.append(1)
+# num = 0
+# for filename in os.listdir(path_fall):
+#     frame = cv2.imread(path_fall + filename)
+#     # box 需要 x, y, w, h的格式
+#     x = 0
+#     y = 0
+#     w = frame.shape[1]
+#     h = frame.shape[0]
+#     box = [x, y, w, h]
 
-train_array = np.array(train_data[0:34])
-train_labels = np.array(train_label[0:34])
+#     feature = encoder(frame, [box])
+#     # fall_data.append(feature[0, :])
+#     X.append(feature[0, :])
+#     Y.append(1)  # 跌倒是1，第二个数字大跌倒
+#     num += 1
+#     print(num)
 
-test_array = np.array(train_data[34:])
-test_labels = np.array(train_label[34:])
+# num = 0
+# for filename in os.listdir(path_upright):
+#     frame = cv2.imread(path_upright + filename)
+#     # box 需要 x, y, w, h的格式
+#     x = 0
+#     y = 0
+#     w = frame.shape[1]  # 这里的顺序一定要注意，最开始我就写错了
+#     h = frame.shape[0]
+#     box = [x, y, w, h]
 
-# model = keras.Sequential([
-#     keras.layers.Dense(10, activation=tf.nn.relu),
-#     keras.layers.Dense(2, activation=tf.nn.softmax)
-# ])
+#     feature = encoder(frame, [box])
+#     # upright_data.append(feature[0, :])
+#     X.append(feature[0, :])
+#     Y.append(0)
+#     num += 1
+#     print(num)
 
-# model.compile(optimizer='adam',
-#               loss='sparse_categorical_crossentropy',
-#               metrics=['accuracy'])
+# np.savetxt("X.txt", X)
+# np.savetxt("Y.txt", Y)
 
-# model.fit(train_array, train_labels, epochs=250)
+# =======================读取数据=====================
 
-# test_loss, test_acc = model.evaluate(test_array, test_labels)
-# print('Test accuracy:', test_acc)
+X = np.loadtxt("X.txt")
+Y = np.loadtxt("Y.txt")
 
-# model.save('fall_detec_model.h5')
+X_train, X_test, Y_train, Y_test = train_test_split(X,
+                                                    Y,
+                                                    test_size=0.2,
+                                                    random_state=42)
+# random_state 保证每次随机完结果都一样
+# ===================================================
 
-model = keras.models.load_model('fall_detec_model.h5')
-input_shape = (1, 128)
-model.build(input_shape)
-model.summary()
-pre_y = model.predict(test_array)
-print(test_labels)
-print(pre_y)
+# ======================训练模型=======================
+model = keras.Sequential()
+model.add(keras.layers.Dense(units=20, activation='relu', input_dim=128))
+model.add(keras.layers.Dense(units=2, activation='softmax'))
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(X_train, Y_train, epochs=200)
+
+test_loss, test_acc = model.evaluate(X_test, Y_test)
+print('Test accuracy:', test_acc)
+model.save('fall_detec_model.h5')
+
+# ================================================================================
+
+# ========================测试代码=========================
+# model = keras.models.load_model('fall_detec_model_09475.h5')
+# input_shape = (1, 128)
+# model.build(input_shape)
+# model.summary()
+# pre_y = model.predict(X_test)
+# print(Y_test)
+# print(pre_y)
+# =======================================================

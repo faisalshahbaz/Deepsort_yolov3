@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+主要的demo。运行即可。
+"""
 
 from __future__ import division, print_function, absolute_import
 
@@ -51,214 +54,256 @@ def draw_line(event, x, y, flags, param):
 
 
 def main(yolov3):
+
     global ix, iy, drawing, tag, img
-    order = 0  # 统计是第几帧
-    alarm_tag = False  # 这一帧是否报警
-    person_list = []  # 储存person_ID的list
-
-    G = Gui()
-    G.gui()
-
-    # Definition of the parameters
-    max_cosine_distance = 0.3
-    nn_budget = None
-    nms_max_overlap = 0.3
-
-    # deep_sort
-    model_filename = 'model_data/mars-small128.pb'
-    encoder = gdet.create_box_encoder(model_filename, batch_size=1)
-
-    metric = nn_matching.NearestNeighborDistanceMetric("cosine",
-                                                       max_cosine_distance,
-                                                       nn_budget)
-    tracker = Tracker(metric)
-
-    # video_path = "/home/tom/桌面/行人检测算法/测试视频/test.mp4"
-    # video_path = "/home/tom/桌面/行人检测算法/people/003.avi"
-    video_path = G.pathToLoad
-
-    video_capture = cv2.VideoCapture(video_path)
-
-    # ================= 储存视频 =================
-    # if G.ifsave == 1:
-    #     # Define the codec and create VideoWriter object
-    #     w = int(video_capture.get(3))
-    #     h = int(video_capture.get(4))
-    #     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    #     out = cv2.VideoWriter(G.pathToSave, fourcc, 15, (w, h))
-    #     list_file = open('detection.txt', 'w')
-    #     frame_index = -1
-    # ==============获取鼠标事件画区域的代码=================
-    if G.ifregion == 1:  # 如果画警戒区域
-        value, img = video_capture.read()
-        # rotate the img
-        # img = np.rot90(img, -1)
-
-        cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
-        cv2.setMouseCallback(
-            "image", draw_area)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
-        while (1):
-            if drawing is True and tag < 4:
-                if tag > 0:
-                    cv2.line(img, (ix[tag - 1], iy[tag - 1]),
-                             (ix[tag], iy[tag]), (0, 0, 255), 2)
-                if tag == 3:
-                    cv2.line(img, (ix[0], iy[0]), (ix[tag], iy[tag]),
-                             (0, 0, 255), 2)
-                drawing = False
-
-            cv2.imshow('image', img)
-            k = cv2.waitKey(1)
-            if k == ord('q') or tag == 4:
-                break
-        pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]], [ix[2], iy[2]],
-                        [ix[3], iy[3]]])
-        cv2.destroyWindow("image")
-        # ==============获取鼠标事件画警戒线的代码=================
-    if G.ifline == 1:  # 如果画警戒线
-        value, img = video_capture.read()
-        # rotate the img
-        # img = np.rot90(img, -1)
-
-        cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
-        cv2.setMouseCallback(
-            "image", draw_line)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
-        while (1):
-            if drawing is True and tag < 2:
-                if tag > 0:
-                    cv2.line(img, (ix[tag - 1], iy[tag - 1]),
-                             (ix[tag], iy[tag]), (0, 0, 255), 2)
-                drawing = False
-
-            cv2.imshow('image', img)
-            k = cv2.waitKey(1)
-            if k == ord('q') or tag == 2:
-                break
-        pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]]])
-        cv2.destroyWindow("image")
-    # ===============================
-    if not ('pts' in dir()):
-        pts = np.array([])
-    judge = JUDGE(pts)
-    fps = 0.0
+    key_value = int()
     while True:
-        ret, frame = video_capture.read()  # frame shape 640*480*3
-        order = order + 1
-        if ret is not True:
-            break
-        t1 = time.time()
+        tag = -1  # 初始化一些参数
+        ix = [0, 0, 0, 0]
+        iy = [0, 0, 0, 0]
+        drawing = False
 
-        # image = Image.fromarray(frame)
-        # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        # image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
-        boxs = yolov3.detect_image(frame)  # 从这里开始检测
-        # boxs = yolov3_tf.detect_image(image)
-        # print("box_num",len(boxs))
-        features = encoder(frame, boxs)
+        order = 0  # 统计是第几帧
+        alarm_tag = False  # 这一帧是否报警
+        person_list = []  # 储存person_ID的list
 
-        # score to 1.0 here).
-        detections = [
-            Detection(bbox, 1.0, feature)
-            for bbox, feature in zip(boxs, features)
-        ]
+        G = Gui()
+        G.gui()
 
-        # Run non-maxima suppression.
-        boxes = np.array([d.tlwh for d in detections])
-        scores = np.array([d.confidence for d in detections])  # 分数是1
-        indices = preprocessing.non_max_suppression(boxes, nms_max_overlap,
-                                                    scores)
-        detections = [detections[i] for i in indices]
+        # Definition of the parameters
+        max_cosine_distance = 0.3
+        nn_budget = None
+        nms_max_overlap = 0.3
 
-        # Call the tracker
-        tracker.predict()
-        tracker.update(detections)
+        # deep_sort
+        model_filename = 'model_data/mars-small128.pb'
+        encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
-        for track in tracker.tracks:
-            if not track.is_confirmed() or track.time_since_update > 1:
-                continue
-            vx = track.mean[4]
-            vy = track.mean[5]
-            v = np.sqrt(vx**2 + vy**2)
-            v = judge.filter_vel(track.track_id, v)  # 对速度进行平滑处理
-            bbox = track.to_tlbr()
-            color = (255, 255, 255)  # default color
+        metric = nn_matching.NearestNeighborDistanceMetric(
+            "cosine", max_cosine_distance, nn_budget)
+        tracker = Tracker(metric)
 
-            # 如果有限制速度
-            if G.ifspeed == 1:
-                if v > G.speedMax:
-                    if track.track_id not in person_list:
-                        person_list.append(track.track_id)
-                        alarm_tag = True  # alarm_tag 仅用于指示保存
-                    color = (0, 0, 255)
+        # video_path = "/home/tom/桌面/行人检测算法/测试视频/test.mp4"
+        # video_path = "/home/tom/桌面/行人检测算法/people/003.avi"
+        video_path = G.pathToLoad
 
-            # 如果有跌倒检测
-            if G.iffall == 1:
-                # if not track.is_confirmed():
-                #     continue
-                if v < G.speedMin:
-                    result = judge.model.predict(
-                        np.array(track.features_cons[-1:]))
-                    if len(result) != 0:
-                        result = result[0]
-                        if result[1] < result[0]:  # 0是跌倒，1是站立
+        video_capture = cv2.VideoCapture(video_path)
+
+        # ================= 储存视频 =================
+        # if G.ifsave == 1:
+        #
+        # ==============获取鼠标事件画区域的代码=================
+        if G.ifregion == 1:  # 如果画警戒区域
+            value, img = video_capture.read()
+            # rotate the img
+            # img = np.rot90(img, -1)
+
+            cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
+            cv2.setMouseCallback(
+                "image", draw_area)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
+            while (1):
+                if drawing is True and tag < 4:
+                    if tag > 0:
+                        cv2.line(img, (ix[tag - 1], iy[tag - 1]),
+                                 (ix[tag], iy[tag]), (0, 0, 255), 2)
+                    if tag == 3:
+                        cv2.line(img, (ix[0], iy[0]), (ix[tag], iy[tag]),
+                                 (0, 0, 255), 2)
+                    drawing = False
+
+                cv2.imshow('image', img)
+                k = cv2.waitKey(1)
+                if k == ord('q') or tag == 4:
+                    break
+            pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]], [ix[2], iy[2]],
+                            [ix[3], iy[3]]])
+            cv2.destroyWindow("image")
+            # ============== 获取鼠标事件画警戒线的代码 =================
+        if G.ifline == 1:  # 如果画警戒线
+            value, img = video_capture.read()
+            cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
+            cv2.setMouseCallback(
+                "image", draw_line)  # 第二个参数为回调函数，即指定窗口里每次鼠标事件发生的时候被调用的函数指针。
+            while (1):
+                if drawing is True and tag < 2:
+                    if tag > 0:
+                        cv2.line(img, (ix[tag - 1], iy[tag - 1]),
+                                 (ix[tag], iy[tag]), (0, 0, 255), 2)
+                    # drawing = False
+
+                cv2.imshow('image', img)
+                k = cv2.waitKey(1)
+                if k == ord('q') or tag == 2:
+                    break
+            pts = np.array([[ix[0], iy[0]], [ix[1], iy[1]]])
+            cv2.destroyWindow("image")
+        # ===============================
+
+        # ============读取=============
+        if not ('pts' in dir()):
+            pts = np.array([])
+        judge = JUDGE(pts)
+        fps = 0.0
+        while True:
+            ret, frame = video_capture.read()  # frame shape 640*480*3
+            order = order + 1
+            if ret is not True:
+                key_value = ord('r')
+                break
+            t1 = time.time()
+
+            # image = Image.fromarray(frame)
+            # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            # image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
+
+            # ============检测=============
+            bboxes = yolov3.detect_image(frame)  # 从这里开始检测
+
+            # =============测试Bbox的坐标对不对=============
+            # for bbox in bboxes:
+            #     x1 = bbox[0]
+            #     y1 = bbox[1]
+            #     x2 = bbox[0] + bbox[2] - 1
+            #     y2 = bbox[1] + bbox[3] - 1
+            #     # photo1 = frame[int(bbox[0]):int(bbox[2]),
+            #     #                int(bbox[1]):int(bbox[3])]
+            #     # cv2.imshow('photo1', photo1)
+            #     # cv2.waitKey(0)
+            #     photo2 = frame[int(y1):int(y2 + 1), int(x1):int(x2 + 1), :]
+            #     cv2.imshow('photo1', photo2)
+            #     cv2.waitKey(0)
+            #     # 如果Bbox的坐标是正确形式，那么photo2是正确的，photo1是错误的
+            # ============================================
+
+            features = encoder(frame, bboxes)  # boxes必须是x, y, w, h的格式
+
+            # score to 1.0 here).
+            detections = [
+                Detection(bbox, 1.0, feature)
+                for bbox, feature in zip(bboxes, features)
+            ]
+
+            # Run non-maxima suppression.
+            boxes = np.array([d.tlwh for d in detections])
+            scores = np.array([d.confidence for d in detections])  # 分数是1
+            indices = preprocessing.non_max_suppression(
+                boxes, nms_max_overlap, scores)
+            detections = [detections[i] for i in indices]
+
+            # Call the tracker
+            tracker.predict()
+            tracker.update(detections)
+
+            for track in tracker.tracks:
+                if not track.is_confirmed() or track.time_since_update > 1:
+                    continue
+                vx = track.mean[4]
+                vy = track.mean[5]
+                v = np.sqrt(vx**2 + vy**2)
+                v = judge.filter_vel(track.track_id, v)  # 对速度进行平滑处理
+                bbox = track.to_tlbr()  # 这个已经从xywh转成xyxy格式了
+                color = (255, 255, 255)  # default color
+
+                # 如果有限制速度
+                if G.ifspeed == 1:
+                    if v > G.speedMax:
+                        if track.track_id not in person_list:
+                            person_list.append(track.track_id)
+                            alarm_tag = True  # alarm_tag 仅用于指示保存
+                        color = (0, 0, 255)
+
+                # 如果有跌倒检测
+                if G.iffall == 1:
+                    # if not track.is_confirmed():
+                    #     continue
+                    sample = np.array(
+                        track.features_cons[0:1]
+                    )  # features_cons 里边保存了多次的检测数据，以应对遮挡等突然变化的情况. 原为[-1:0]
+
+                    # if v < G.speedMin and sample.size == 128:
+                    # if sample.size == 128:
+                    #     result = judge.model.predict(sample)
+                    #     if len(result) != 0:
+                    #         result = np.array(result[0])
+                    #         if ((result[1] - result[0]) > 0.5):  # 第二个数字大是跌倒
+                    #             color = (0, 0, 255)
+                    #             print(result)
+
+                    if track.track_id:
+                        if judge.determine_falling(track.track_id, sample,
+                                                   G.fall_frame) is True:
+                            if track.track_id not in person_list:  # 只保存异常物体第一次的照片
+                                person_list.append(track.track_id)
+                                alarm_tag = True  # alarm_tag 仅用于指示保存
                             color = (0, 0, 255)
 
-            # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
-            if judge.determine(
-                (bbox[0] + bbox[2]) / 2, bbox[3]) or judge.determine(
-                    (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2):
+                # 如果中心点或底边中点落入警戒区域，则变红。警戒才有这一部分。
+                if judge.determine(
+                    (bbox[0] + bbox[2]) / 2, bbox[3]) or judge.determine(
+                        (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2):
 
-                if judge.determine_direction(vx, vy, G.ifsingle_cross,
-                                             G.ifregion, G.ifreverse):
-                    if track.track_id not in person_list:
-                        person_list.append(track.track_id)
-                        alarm_tag = True  # alarm_tag 仅用于指示保存
-                    color = (0, 0, 255)
+                    if judge.determine_direction(vx, vy, G.ifsingle_cross,
+                                                 G.ifregion, G.ifreverse):
+                        if track.track_id not in person_list:
+                            person_list.append(track.track_id)
+                            alarm_tag = True  # alarm_tag 仅用于指示保存
+                        color = (0, 0, 255)
 
-            # 白色是卡尔曼滤波预测的目标，绿的字
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
-                          (int(bbox[2]), int(bbox[3])), color, 2)
+                # ============积累样本搞的临时代码==============
+                # if 'people_number' not in dir():
+                #     people_number = 0
 
-            strtemp = str(track.track_id) + " v = " + str(round(
-                v, 3)) + " pixels/frame"
-            cv2.putText(frame, strtemp, (int(bbox[0]), int(bbox[1])), 0,
-                        5e-3 * 200, (0, 255, 0), 2)
+                # if alarm_tag is True:
+                #     people_number += 1
+                #     photo = frame[int(bbox[0]):int(bbox[2]),
+                #                   int(bbox[1]):int(bbox[3])]
+                #     cv2.imshow('abc', photo)
+                # ===========================================
 
-        for det in detections:
-            bbox = det.to_tlbr()
-            # 蓝色是检测出的目标
-            color = (255, 0, 0)
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
-                          (int(bbox[2]), int(bbox[3])), color, 2)
+                # 白色是卡尔曼滤波预测的目标，绿的字
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
+                              (int(bbox[2]), int(bbox[3])), color, 2)
 
-        # ==============绘制警戒区+作图==================
-        frame = judge.draw(frame)
-        cv2.imshow('', frame)
-        if (alarm_tag is True) and (G.ifsave == 1):
-            cv2.imwrite("%s%s.jpg" % (G.pathToSave, order), frame)
-            alarm_tag = False
-        # ==============储存视频 =====================
-        # if G.ifsave:
-        #     # save a frame
-        #     out.write(frame)
-        #     frame_index = frame_index + 1
-        #     list_file.write(str(frame_index) + ' ')
-        #     if len(boxs) != 0:
-        #         for i in range(0, len(boxs)):
-        #             list_file.write(
-        #                 str(boxs[i][0]) + ' ' + str(boxs[i][1]) + ' ' +
-        #                 str(boxs[i][2]) + ' ' + str(boxs[i][3]) + ' ')
-        #     list_file.write('\n')
-        # ============================================
+                strtemp = str(track.track_id) + " v = " + str(round(
+                    v, 3)) + " p/f"
+                cv2.putText(frame, strtemp, (int(bbox[0]), int(bbox[1])), 0,
+                            5e-3 * 200, (0, 255, 0), 2)
 
-        fps = (fps + (1. / (time.time() - t1))) / 2
-        print("fps= %f" % (fps))
+            for det in detections:
+                bbox = det.to_tlbr()
+                # 蓝色是检测出的目标
+                color = (255, 0, 0)
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
+                              (int(bbox[2]), int(bbox[3])), color, 2)
 
-        # Press Q to stop!
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+            # ==============绘制警戒区+作图+存储==================
+            frame = judge.draw(frame, drawing)
+            str_bottom = "Press 'ESC' to quit, and press 'r' to restart!"
+            cv2.putText(frame, str_bottom, (0, 50), 0, 5e-3 * 200, (0, 0, 255),
+                        2)
+            cv2.imshow('', frame)
+            if (alarm_tag is True) and (G.ifsave == 1):
+                cv2.imwrite("%s%s.jpg" % (G.pathToSave, order), frame)
+                alarm_tag = False
+            # ==============储存视频 =====================
+            # if G.ifsave:
+            # ============================================
+
+            fps = (fps + (1. / (time.time() - t1))) / 2
+            print("fps= %f" % (fps))
+
+            # Press ESC to stop! And R to restart!
+            key_value = cv2.waitKey(1)
+            if key_value != -1:
+                if key_value == ord('r') or key_value == 27:
+                    break
+
+        if key_value == ord('r'):
+            cv2.destroyAllWindows()
+            continue
+        else:
             break
-
-    # ========= 结束全流程 ========
+        # ========= 结束全流程 ========
     yolov3.close_session()
     video_capture.release()
     # if G.ifsave == 1:

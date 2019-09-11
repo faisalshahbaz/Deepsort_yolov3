@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# 这个程序用来处理照片，提取特征
+# 这个程序是针对照片识别的。
 
 from __future__ import division, print_function, absolute_import
 
@@ -109,9 +109,3 @@ svm.setC(0.01)
 # 训练
 
 result = svm.train(train_data, cv2.ml.ROW_SAMPLE, train_label)
-
-# f_data.write(str(train_data))
-# f_label.write(str(train_label))
-
-# f_data.close()
-# f_label.close()
