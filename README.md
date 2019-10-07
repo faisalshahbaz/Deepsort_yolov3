@@ -77,33 +77,33 @@ https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
 
 **整体功能**：
 
-File path of opening：输入源视频路径，默认为"/home/tom/桌面/行人检测算法/测试数据/监控视频/003.avi"。
+The file path of opening：输入源视频路径，默认为"/home/tom/桌面/行人检测算法/测试数据/监控视频/003.avi"。
 
 Save videos：是否将报警的图片保存。一个目标如果多次报警，只保存第一张图片。
 
-File path of saving：输入报警的图片保存的路径。默认为"./alarm_frame/"
+The file path of saving：输入报警的图片保存的路径。默认为"./alarm_frame/"
 
 ------
 
 **入侵功能**：
 
-Does it has warning area：实现入侵功能，是否有警戒区域。如果有，在下一幅画面上需要点四个位置划定一个四边形区域，当目标进入该区域会变红报警。
+Does it have a warning area：实现入侵功能，是否有警戒区域。如果有，在下一幅画面上需要点四个位置划定一个四边形区域，当目标进入该区域会变红报警。
 
 ------
 
 **越界功能**：
 
-Does it has warning line：实现越线功能，是否有警戒线。如果有，在下一幅画面上需要点两下确定一条直线，当目标跨过这个区域会变红报警。在选了这个选项的基础上需要选择下个选项：
+Does it have a warning line：实现越线功能，是否有警戒线。如果有，在下一幅画面上需要点两下确定一条直线，当目标跨过这个区域会变红报警。在选了这个选项的基础上需要选择下个选项：
 
 ​			Single cross？ ：是否是单向穿越。默认是双向穿越，目标过线就会报警。如果选择单向穿越，只有从某一方向过线才会报警。在选了这个的基础上需要选择下个选项：
 
-​						Reverse direction？：是否反转单向穿越的报警方向。
+​			Reverse direction？：是否反转单向穿越的报警方向。
 
 ------
 
 **检测速度功能**：
 
-Does it has speed limit?：实现检测速度功能（单位是像素/帧）。如果有，当速度超过设定值，目标会变红。在选了这个的基础上需要下个选项：
+Does it have a speed limit?：实现检测速度功能（单位是像素/帧）。如果有，当速度超过设定值，目标会变红。在选了这个的基础上需要下个选项：
 
 ​	Maximum  speed：设定报警速度，单位是像素/帧
 
@@ -111,8 +111,8 @@ Does it has speed limit?：实现检测速度功能（单位是像素/帧）。�
 
 **检测跌倒功能**：当前这个功能对实际视频效果很差
 
-Does It judge fall？：勾选则实现对跌倒的检测，跌倒会报警。
+Does it judge fall？：勾选则实现对跌倒的检测，跌倒会报警。
 
 Fall time：输入设定的最小速度，单位是像素/帧。当目标的速度小于这个值，会启用检测器进行跌倒检测。
 
-4. 如果有问题，可以邮件联系我 lijinjie362@outlook.com
+如果有问题，可以邮件联系我 lijinjie362@outlook.com
