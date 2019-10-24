@@ -47,7 +47,7 @@ https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
   1. Clone this repository.
   2. Download yolov3_coco.pb from https://github.com/YunYang1994/tensorflow-yolov3
   3. Download mars-small128.pb from https://github.com/Qidian213/deep_sort_yolov3.
- 4. Run demo.py. 现在的代码写的非常差，我会尽快把代码修正得更加清晰易懂。
+  4. Run demo.py. 现在的代码写的非常差，我会尽快把代码修正得更加清晰易懂。
 
 ---
 
