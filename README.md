@@ -31,8 +31,6 @@ Through this project, I am trying to complete the following learning objectives:
 4. Understand common target tracking algorithms. Currently I use the Deep Sort algorithm for target tracking.
 5. Master some methods for optimizing computing resources
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kFEjHOXokIw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
 |       Name        |              Configuration              |
 | :---------------: | :-------------------------------------: |
 |     Processor     | Intel® Core™ i7-8700 CPU @ 3.20GHz × 12 |
