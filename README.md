@@ -123,5 +123,3 @@ Does it have a speed limit?：实现检测速度功能（单位是像素/帧）�
 Does it judge fall？：勾选则实现对跌倒的检测，跌倒会报警。
 
 Fall time：输入设定的最小速度，单位是像素/帧。当目标的速度小于这个值，会启用检测器进行跌倒检测。
-
-如果有问题，可以邮件联系我 lijinjie362@outlook.com
