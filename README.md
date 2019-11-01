@@ -15,7 +15,7 @@ YOLOv3算法和Deep Sort算法的代码参考了以下几个项目:
  https://github.com/nwojke/deep_sort
  非常感谢这几个项目！希望有一天我也可以像他们一样为开源社区做贡献。
 
- 目前我正在训练一个分类器，尝试在目标检测的基础上，对跌倒，跑步和站立三种行为进行识别。
+ 之前我训练了一个分类器，尝试在目标检测的基础上，对跌倒进行识别。但从Youtube上收集的跌倒样本训练出的分类器泛化性能太差，因此没有加入。
 
  P.S. 看到YunYang大神贴出了对YOLOV3的代码剖析，有兴趣的可以移步：
  https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
@@ -31,13 +31,24 @@ Through this project, I am trying to complete the following learning objectives:
 4. Understand common target tracking algorithms. Currently I use the Deep Sort algorithm for target tracking.
 5. Master some methods for optimizing computing resources
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kFEjHOXokIw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+|       Name        |              Configuration              |
+| :---------------: | :-------------------------------------: |
+|     Processor     | Intel® Core™ i7-8700 CPU @ 3.20GHz × 12 |
+|        GPU        |           GeForce GTX 1050 Ti           |
+|      Memory       |                  16 GB                  |
+| Operating system  |        Ubuntu 16.04.6 LTS 64-bit        |
+| Video information |             1280*720 30FPS              |
+| Processing speed  |                  7FPS                   |
+
 The code for the YOLOv3 algorithm and the Deep Sort algorithm refer to the following repositories:
   https://github.com/Qidian213/deep_sort_yolov3
   https://github.com/YunYang1994/tensorflow-yolov3
   Https://github.com/nwojke/deep_sort
 Thanks very much for these projects! I hope that one day I can contribute to the open source community like them.
 
-I am currently training a classifier to try to identify the three behaviors of falling, running and standing based on the target detection.
+I tried to train a classifier to try to identify the falling behaviors based on target detection. However, my samples gathered from YouTube results in poor generalization performance.
 
 P.S. I saw that YunYang posted a code analysis of YOLOV3. If you are interested, you can move:
 https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
@@ -47,7 +58,7 @@ https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
   1. Clone this repository.
   2. Download yolov3_coco.pb from https://github.com/YunYang1994/tensorflow-yolov3
   3. Download mars-small128.pb from https://github.com/Qidian213/deep_sort_yolov3.
-  4. Run demo.py. 现在的代码写的非常差，我会尽快把代码修正得更加清晰易懂。
+  4. Run demo.py.
 
 ---
 
