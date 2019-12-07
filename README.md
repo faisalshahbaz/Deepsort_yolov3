@@ -22,14 +22,23 @@ YOLOv3算法和Deep Sort算法的代码参考了以下几个项目:
 
 ---
 
-This is my internship project, which aims to automatically detect intrusion, cross-over, running and falling behavior in surveillance video through deep learning algorithms.
-Through this project, I am trying to complete the following learning objectives:
+## Overview
 
-1. Master Python language and object-oriented programming (OOP) ideas.
-2. Master the tensorflow deep learning framework.
-3. Understand common target detection algorithms. I have implemented: traditional algorithms include GMM and ViBe, machine learning algorithm HOG+SVM and deep learning algorithm YOLOV3. Currently I use the YOLOV3 algorithm for target detection.
-4. Understand common target tracking algorithms. Currently I use the Deep Sort algorithm for target tracking.
-5. Master some methods for optimizing computing resources
+Duration：Jun. 2019 - Sep. 2019
+
+Advisor：*Research associate* YUAN Fei
+
+This is my internship project, which aims to detect intrusion, line- crossing, running and falling behaviors automatically in surveillance videos through deep learning algorithms. Through this project, I am trying to reach the following learning objectives:
+
+1. Master the Python language and object-oriented programming (OOP) ideas.
+2. Master the TensorFlow deep learning framework.
+3. Understand frequently-used target detection algorithms, having implemented traditional algorithms including GMM and ViBe, machine learning algorithm HOG+SVM, and deep learning algorithm YOLOV3. Now the YOLOV3 algorithm for target detection.
+4. Understand frequently-used target tracking algorithms. Currently the Deep Sort algorithm for target tracking.
+5. Master methods for optimizing computing resources.
+
+This video presents basic functions of this project. 👇
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kFEjHOXokIw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 |       Name        |              Configuration              |
 | :---------------: | :-------------------------------------: |
@@ -40,16 +49,11 @@ Through this project, I am trying to complete the following learning objectives:
 | Video information |             1280*720 30FPS              |
 | Processing speed  |                  7FPS                   |
 
-The code for the YOLOv3 algorithm and the Deep Sort algorithm refer to the following repositories:
-  https://github.com/Qidian213/deep_sort_yolov3
-  https://github.com/YunYang1994/tensorflow-yolov3
-  Https://github.com/nwojke/deep_sort
-Thanks very much for these projects! I hope that one day I can contribute to the open source community like them.
+The code for the YOLOv3 algorithm and the Deep Sort algorithm refer to the following repositories: [Https://github.com/Qidian213/deep_sort_yolov3](Https://github.com/Qidian213/deep_sort_yolov3), [Https://github.com/YunYang1994/tensorflow-yolov3](Https://github.com/YunYang1994/tensorflow-yolov3) and [Https://github.com/nwojke/deep_sort](Https://github.com/nwojke/deep_sort). Owing to these projects! I hope that one day, I could contribute to the open-source community like them.
 
-I tried to train a classifier to try to identify the falling behaviors based on target detection. However, my samples gathered from YouTube results in poor generalization performance.
+I tried to train a classifier to identify the falling behaviors based on target detection. However, my samples gathered from YouTube resulted in poor generalization performance.
 
-P.S. I saw that YunYang posted a code analysis of YOLOV3. If you are interested, you can move:
-https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
+P.S. I found that YunYang posted a code analysis of YOLOV3. If you are interested, you can go to: [https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md](https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md)
 
 ## Quick start
 
@@ -59,67 +63,49 @@ https://github.com/YunYang1994/CodeFun/blob/master/005-paper_reading/YOLOv3.md
   4. Run demo.py.
 
 ---
+## Functions
 
-### 概述
+This part is to explain the meaning of the UI interface.
 
-该demo实现了入侵，越线，跌倒和跑步的功能，详见简易需求文档。
+<img src="https://s2.ax1x.com/2019/10/07/u2Ezb8.png" alt="u2Ezb8.png" border="0" height="500"/>
 
-主要算法包括：目标检测算法+目标追踪算法+跌倒分类器。
+**General functions:**
 
-目标检测算法可以判断图片中有哪些物体，每个物体的位置（方框的左上和右下的坐标），实现入侵和越线的功能；目标追踪算法可以通过卡尔曼滤波对每一个目标进行预测与匹配，从速度层面对跑步实行报警，也可以判断多长时间以后开启跌倒检测器；检测器可以判断检测框内部的人是站立还是跌倒。
+*The file path of opening*: Enter the path of a source video, which defaults to "/home/tom/桌面/行人检测算法/测试数据/监控视频/003.avi"
 
-目标检测算法：YOLOV3
+*Save videos*: Decide whether to save the alarm picture. If a target alarms multiple times, save only the first picture.
 
-目标追踪算法：Deep Sort
-
-跌倒分类器：我使用Deep Sort自带的Marz网络进行特征提取，提取之后为128维的向量，之后用一个三层全连接网络进行分类。
-
-### 如何使用demo
-
-1. 打开VScode
-2. 运行demo.py文件
-3. ![1568015336283](/home/tom/.config/Typora/typora-user-images/1568015336283.png)
-
-需要在该界面上进行设置，以启动相应的功能。
+*The file path of saving*: Enter the saved path of the alarm pictures, which defaults to "./alarm_frame/"
 
 ------
 
-**整体功能**：
+**Detecting  intrusion**：
 
-The file path of opening：输入源视频路径，默认为"/home/tom/桌面/行人检测算法/测试数据/监控视频/003.avi"。
-
-Save videos：是否将报警的图片保存。一个目标如果多次报警，只保存第一张图片。
-
-The file path of saving：输入报警的图片保存的路径。默认为"./alarm_frame/"
+*Does it have a warning area*: Implement detecting intrusion function, determine whether there is an alert area? If yes, a quadrilateral area needs to be defined at four points in the window. When the target enters this area, the box on the target will turn red to alert.
 
 ------
 
-**入侵功能**：
+**Detecting crossing a line**：
 
-Does it have a warning area：实现入侵功能，是否有警戒区域。如果有，在下一幅画面上需要点四个位置划定一个四边形区域，当目标进入该区域会变红报警。
+*Does it have a warning line*: Whether there is a warning line? If yes, a straight line needs to be determined in the next picture. When the target crosses this line, the box on the target will turn red to alert. After selecting this option, you need to choose the next two options:
 
-------
+1. *Single cross？* : Is it one-way crossing? The default is two-way crossing, and it will alert as long as a target crossed the line. If you choose one-way crossing, only crossing the line in one direction will alert. After selecting this option, you need to select the next option:
 
-**越界功能**：
-
-Does it have a warning line：实现越线功能，是否有警戒线。如果有，在下一幅画面上需要点两下确定一条直线，当目标跨过这个区域会变红报警。在选了这个选项的基础上需要选择下个选项：
-
-​			Single cross？ ：是否是单向穿越。默认是双向穿越，目标过线就会报警。如果选择单向穿越，只有从某一方向过线才会报警。在选了这个的基础上需要选择下个选项：
-
-​			Reverse direction？：是否反转单向穿越的报警方向。
+2. *Reverse direction？*: Whether to reverse the alarm direction of one-way crossing.
 
 ------
 
-**检测速度功能**：
+**Detecting running**：
 
-Does it have a speed limit?：实现检测速度功能（单位是像素/帧）。如果有，当速度超过设定值，目标会变红。在选了这个的基础上需要下个选项：
+*Does it have a speed limit?*：Implement detecting running function (pixels/frame). If yes, the box on the target will turn red to alert when the speed exceeds the set value. After selecting this option, you need to select the next option:
 
-​	Maximum  speed：设定报警速度，单位是像素/帧
+*Maximum  speed* : Set alarm speed in pixels/frame.
 
 ------
 
-**检测跌倒功能**：当前这个功能对实际视频效果很差
+**Detecting falling**: At present, this function has a poor effect on the actual video.
 
-Does it judge fall？：勾选则实现对跌倒的检测，跌倒会报警。
+*Does It judge fall？*: If yes, implement detecting falling function.
 
-Fall time：输入设定的最小速度，单位是像素/帧。当目标的速度小于这个值，会启用检测器进行跌倒检测。
+*Falling time*: Enter the minimum speed (pixels/frame). When the target's speed is less than this value, the box on the target will turn red to alert.
+
